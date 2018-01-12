@@ -1,0 +1,8 @@
+[package]
+name = "dist_tx"
+version = "0.0.1"
+authors = ["emabee <meinolf.block@sap.com>"]
+
+[dependencies]
+bitflags = "1.0"
+byteorder = "1.1"
