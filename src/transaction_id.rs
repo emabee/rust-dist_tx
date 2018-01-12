@@ -6,13 +6,15 @@ use std::i32;
 
 /// The ID of a distributed transaction, analogous to the
 /// [X/Open XA standard](http://pubs.opengroup.org/onlinepubs/009680699/toc.pdf).
+#[derive(Clone)]
 pub struct TransactionId(OTid);
 
+#[derive(Clone, Debug)]
 enum OTid {
     None,
     Some(Tid),
 }
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct Tid {
     format_id: u32,
     global_ta: Vec<u8>,

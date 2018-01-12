@@ -1,6 +1,6 @@
 /// Represents the possible errors that can occur.
 #[derive(Debug)]
-pub struct RmError(Kind, String);
+pub struct RmError(pub Kind, pub String);
 
 /// Errors occuring in resource managers.
 #[derive(Debug)]

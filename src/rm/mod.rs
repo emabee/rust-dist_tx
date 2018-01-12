@@ -3,5 +3,6 @@ mod flags;
 mod resource_manager;
 mod rm_error;
 
+pub use self::flags::Flags;
 pub use self::resource_manager::ResourceManager;
 pub use self::rm_error::{Kind, RmError, RmResult};

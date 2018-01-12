@@ -4,6 +4,7 @@ use rm::RmError;
 pub type TmResult<T> = Result<T, TmError>;
 
 /// Error of Transaction Manager.
+#[derive(Debug)]
 pub enum TmError {
     /// Error was caused by one or multiple Resource Manager Errors.
     RmError(Vec<RmError>),

@@ -1,10 +1,9 @@
-use std::hash::Hash;
 use rm::flags::Flags;
 use rm::RmResult;
-use tm::TransactionId;
+use TransactionId;
 
 /// Interface of a resource manager, as required by a transaction manager.
-pub trait ResourceManager: Hash + Eq {
+pub trait ResourceManager {
     /// Starts or resumes the work on behalf of a given transaction branch.
     ///
     /// # Arguments
