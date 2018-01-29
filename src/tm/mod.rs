@@ -1,7 +1,11 @@
-//! Transactions and transaction managers.
-mod tm_error;
-mod transaction;
+//! Transactions and the transaction manager trait, and a simple implementation.
+mod simple_transaction_manager;
 mod transaction_manager;
+mod xa_error;
+mod xa_transaction_id;
 
-pub use self::tm_error::{TmError, TmResult};
+pub use self::xa_error::{XaError, XaResult};
 pub use self::transaction_manager::TransactionManager;
+pub use self::simple_transaction_manager::SimpleTransactionManager;
+pub use self::transaction_manager::TmStatus;
+pub use self::xa_transaction_id::XaTransactionId;
