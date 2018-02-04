@@ -1,3 +1,4 @@
+use rm::rm_error::RmRc;
 use rm::flags::Flags;
 use rm::RmResult;
 use tm::XaTransactionId;
@@ -11,7 +12,7 @@ pub trait CResourceManager {
     ///
     /// * `xid` - The id of the transaction branch.
     /// * `flag` - One of Flag::default(), Flag::JOIN, Flag::RESUME.
-    fn start(&mut self, id: &XaTransactionId, flag: Flags) -> RmResult<()>;
+    fn start(&mut self, id: &XaTransactionId, flag: Flags) -> RmResult<RmRc>;
 
     /// Tells the server to end work on behalf of a given transaction branch.
     ///
@@ -19,14 +20,14 @@ pub trait CResourceManager {
     ///
     /// * `xid` - The id of the transaction branch.
     /// * `flag` - One of Flags::SUCCESS, Flags::FAIL, or Flags::SUSPEND.
-    fn end(&mut self, id: &XaTransactionId, flag: Flags) -> RmResult<()>;
+    fn end(&mut self, id: &XaTransactionId, flag: Flags) -> RmResult<RmRc>;
 
     /// Tells the server to prepare to commit the work done in the given transaction branch.
     ///
     /// # Arguments
     ///
     /// * `xid` - The id of the transaction branch.
-    fn prepare(&mut self, id: &XaTransactionId) -> RmResult<()>;
+    fn prepare(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;
 
     /// Tells the server to commit the work done in the given transaction branch.
     ///
@@ -34,21 +35,21 @@ pub trait CResourceManager {
     ///
     /// * `xid` - The id of the transaction branch.
     /// * `flag` - One of Flags::ONE_PHASE, Flags::default().
-    fn commit(&mut self, id: &XaTransactionId, flag: Flags) -> RmResult<()>;
+    fn commit(&mut self, id: &XaTransactionId, flag: Flags) -> RmResult<RmRc>;
 
     /// Tells the server to roll back the work done in the given transaction branch.
     ///
     /// # Arguments
     ///
     /// * `xid` - The id of the transaction branch.
-    fn rollback(&mut self, id: &XaTransactionId) -> RmResult<()>;
+    fn rollback(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;
 
     /// Tells the server to forget about a heuristically completed transaction.
     ///
     /// # Arguments
     ///
     /// * `xid` - The id of the transaction branch.
-    fn forget(&mut self, id: &XaTransactionId) -> RmResult<()>;
+    fn forget(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;
 
     /// Returns a list of transactions that have been prepared or heuristically completed.
     ///

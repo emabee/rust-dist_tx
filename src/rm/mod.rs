@@ -13,4 +13,4 @@ pub use self::flags::Flags;
 pub use self::resource_manager::ResourceManager;
 pub use self::c_resource_manager::CResourceManager;
 pub use self::c_rm_wrapper::CRmWrapper;
-pub use self::rm_error::{Kind, RmError, RmResult};
+pub use self::rm_error::{ErrorCode, RmError, RmRc, RmResult};

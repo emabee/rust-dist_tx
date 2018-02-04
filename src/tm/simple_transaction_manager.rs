@@ -1,3 +1,4 @@
+use rm::RmRc;
 use std::collections::HashMap;
 use rm::RmResult;
 use std::collections::hash_map::DefaultHasher;
@@ -93,7 +94,7 @@ impl SimpleTransactionManager {
 
     fn rm_action<F>(&mut self, action: F, global_tid: &u64) -> XaResult<()>
     where
-        F: Fn(&mut Box<ResourceManager>, &XaTransactionId) -> RmResult<()>,
+        F: Fn(&mut Box<ResourceManager>, &XaTransactionId) -> RmResult<RmRc>,
     {
         let mut errors = Vec::<RmError>::new();
         for (rm_id, rm) in &mut self.rms {
@@ -251,7 +252,7 @@ impl TransactionManager for SimpleTransactionManager {
                 trace!("found xid {:?}", xid);
                 if self.is_my_xid_and_rm(xid, rm_id) {
                     trace!("trying to forget {:?}", xid);
-                    (*rm).forget(xid).unwrap_or(());
+                    (*rm).forget(xid).unwrap_or(RmRc::Ok);
                 }
             }
         }

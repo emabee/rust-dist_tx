@@ -1,27 +1,6 @@
-/// Represents the possible errors that can occur in a `ResourceManager`.
-#[derive(Debug)]
-pub struct RmError {
-    k: Kind,
-    s: String,
-}
-impl RmError {
-    /// Factory method.
-    pub fn new(k: Kind, s: String) -> RmError {
-        RmError { k: k, s: s }
-    }
-    /// Returns the kind of error that has occured.
-    pub fn get_kind(&self) -> Kind {
-        self.k.clone()
-    }
-    /// Returns a textual description of the error.
-    pub fn get_description(&self) -> String {
-        self.s.clone()
-    }
-}
-
-/// Errors occuring in resource managers.
+/// Return codes used by resource managers.
 #[derive(Clone, Debug)]
-pub enum Kind {
+pub enum RmRc {
     /// A rollback was caused by an unspecified reason.
     RollbackUnspecified,
     /// A rollback was caused by a communication failure.
@@ -53,6 +32,64 @@ pub enum Kind {
     /// The transaction branch was read-only and has been committed.
     ReadOnlyCommitted,
 
+    /// Normal execution.
+    Ok,
+
+    /// Should never be used.
+    UnknownErrorCode(i32),
+}
+impl RmRc {
+    /// Instantiate from the error code as defined in the XA standard.
+    pub fn from_i32(i: i32) -> RmRc {
+        match i {
+            100 => RmRc::RollbackUnspecified,
+            101 => RmRc::RollbackCommunicationFailure,
+            102 => RmRc::RollbackDeadlock,
+            103 => RmRc::RollbackIntegrity,
+            104 => RmRc::RollbackOther,
+            105 => RmRc::RollbackProtocol,
+            106 => RmRc::RollbackTimeout,
+            107 => RmRc::RollbackTransient,
+
+            8 => RmRc::HeuristicallyCompleted,
+            7 => RmRc::HeuristicallyCommitted,
+            6 => RmRc::HeuristicallyRolledBack,
+            5 => RmRc::HeuristicallyMessedUp,
+
+            4 => RmRc::Retry,
+            3 => RmRc::ReadOnlyCommitted,
+            0 => RmRc::Ok,
+            i => RmRc::UnknownErrorCode(i),
+        }
+    }
+}
+
+
+/// Represents the possible errors that can occur in a `ResourceManager`.
+#[derive(Debug)]
+pub struct RmError {
+    c: ErrorCode,
+    s: String,
+}
+impl RmError {
+    /// Factory method.
+    pub fn new(c: ErrorCode, s: String) -> RmError {
+        RmError { c: c, s: s }
+    }
+    /// Returns the kind of error that has occured.
+    pub fn get_code(&self) -> ErrorCode {
+        self.c.clone()
+    }
+    /// Returns a textual description of the error.
+    pub fn get_description(&self) -> String {
+        self.s.clone()
+    }
+}
+
+
+/// Errors occuring in resource managers.
+#[derive(Clone, Debug)]
+pub enum ErrorCode {
     /// A resource manager error occurred in the transaction branch.
     RmError,
     /// Invalid Transaction ID.
@@ -68,34 +105,17 @@ pub enum Kind {
     /// Should never be used.
     UnknownErrorCode(i32),
 }
-impl Kind {
+impl ErrorCode {
     /// Instantiate from the error code as defined in the XA standard.
-    pub fn from_i32(i: i32) -> Kind {
+    pub fn from_i32(i: i32) -> ErrorCode {
         match i {
-            100 => Kind::RollbackUnspecified,
-            101 => Kind::RollbackCommunicationFailure,
-            102 => Kind::RollbackDeadlock,
-            103 => Kind::RollbackIntegrity,
-            104 => Kind::RollbackOther,
-            105 => Kind::RollbackProtocol,
-            106 => Kind::RollbackTimeout,
-            107 => Kind::RollbackTransient,
-
-            8 => Kind::HeuristicallyCompleted,
-            7 => Kind::HeuristicallyCommitted,
-            6 => Kind::HeuristicallyRolledBack,
-            5 => Kind::HeuristicallyMessedUp,
-
-            4 => Kind::Retry,
-            3 => Kind::ReadOnlyCommitted,
-
-            -3 => Kind::RmError,
-            -4 => Kind::InvalidTransactionId,
-            -5 => Kind::InvalidArguments,
-            -6 => Kind::ProtocolError,
-            -7 => Kind::RmFailure,
-            -8 => Kind::DuplicateTransactionId,
-            i => Kind::UnknownErrorCode(i),
+            -3 => ErrorCode::RmError,
+            -4 => ErrorCode::InvalidTransactionId,
+            -5 => ErrorCode::InvalidArguments,
+            -6 => ErrorCode::ProtocolError,
+            -7 => ErrorCode::RmFailure,
+            -8 => ErrorCode::DuplicateTransactionId,
+            i => ErrorCode::UnknownErrorCode(i),
         }
     }
 }
