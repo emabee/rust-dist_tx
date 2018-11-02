@@ -1,9 +1,9 @@
-use rm::rm_error::RmRc;
-use rm::Flags;
-use rm::rm_error::RmResult;
-use rm::c_resource_manager::CResourceManager;
-use rm::resource_manager::ResourceManager;
-use tm::XaTransactionId;
+use crate::rm::rm_error::RmRc;
+use crate::rm::Flags;
+use crate::rm::rm_error::RmResult;
+use crate::rm::c_resource_manager::CResourceManager;
+use crate::rm::resource_manager::ResourceManager;
+use crate::tm::XaTransactionId;
 
 /// Wrapper around and instance of `CResourceManager` that implements `ResourceManager`.
 ///

@@ -1,5 +1,5 @@
-use rm::ResourceManager;
-use tm::XaResult;
+use crate::rm::ResourceManager;
+use crate::tm::XaResult;
 
 /// A transaction manager for distributed transactions.
 ///

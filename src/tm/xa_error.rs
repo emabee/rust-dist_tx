@@ -1,4 +1,4 @@
-use rm::RmError;
+use crate::rm::RmError;
 use std::error::Error;
 use std::io;
 

@@ -2,6 +2,7 @@
 name = "dist_tx"
 version = "0.2.1"
 authors = ["emabee <meinolf.block@sap.com>"]
+edition = "2018"
 description = "A rust language binding for XA Distributed Transactions"
 keywords = ["distributed", "transactions", "XA"]
 license = "MIT/Apache-2.0"

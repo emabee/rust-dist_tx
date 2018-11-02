@@ -1,7 +1,7 @@
-use rm::rm_error::RmRc;
-use rm::flags::Flags;
-use rm::RmResult;
-use tm::XaTransactionId;
+use crate::rm::rm_error::RmRc;
+use crate::rm::flags::Flags;
+use crate::rm::RmResult;
+use crate::tm::XaTransactionId;
 
 /// Interface of a resource manager that is close to the XA standard.
 ///

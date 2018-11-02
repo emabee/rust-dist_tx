@@ -1,5 +1,5 @@
-use tm::xa_error::{XaError, XaResult};
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
+use crate::tm::xa_error::{XaError, XaResult};
 use std::fmt;
 use std::io::{self, Read, Write};
 use std::iter::repeat;
@@ -21,14 +21,15 @@ const MAX_GLOBAL_TRANSACTION_ID_SIZE: usize = 64;
 const MAX_BRANCH_QUALIFIER_SIZE: usize = 64;
 
 impl XaTransactionId {
-    /// Creates an instance of `XaTransactionId` from the three components `format_id`,
-    /// `global_tid`, and `branch_qualifier`.
+    /// Creates an instance of `XaTransactionId` from the three components
+    /// `format_id`, `global_tid`, and `branch_qualifier`.
     ///
     /// Note that the lengths of the binary parameters must not exceed `64`.
     ///
-    /// XA uses a signed int for the format_id, but recommends using only -1, 0, and positive
-    /// values, where -1 is used to represent the NULL value.
-    pub fn new(
+    /// XA uses a signed int for the format_id, but recommends using only -1,
+    /// 0, and positive values, where -1 is used to represent the NULL
+    /// value.
+    pub fn try_new(
         format_id: i32,
         global_tid: Vec<u8>,
         branch_qualifier: Vec<u8>,
@@ -41,9 +42,9 @@ impl XaTransactionId {
             Err(XaError::Usage("Invalid branch_qualifier (too long)"))
         } else {
             Ok(XaTransactionId {
-                format_id: format_id,
-                global_tid: global_tid,
-                branch_qualifier: branch_qualifier,
+                format_id,
+                global_tid,
+                branch_qualifier,
             })
         }
     }
@@ -73,9 +74,9 @@ impl XaTransactionId {
     }
 
     /// Provides a binary representation.
-    /// If padding is true, and the combined length of the binary fields is below 128 bytes,
-    /// the missing number of zero bytes are appended to make the byte pattern compatible with
-    /// the XA structure in C.
+    /// If padding is true, and the combined length of the binary fields is
+    /// below 128 bytes, the missing number of zero bytes are appended to
+    /// make the byte pattern compatible with the XA structure in C.
     pub fn as_bytes(&self, padding: bool) -> io::Result<Vec<u8>> {
         let mut result = Vec::<u8>::new();
         result.write_i32::<LittleEndian>(self.format_id as i32)?;
@@ -93,9 +94,9 @@ impl XaTransactionId {
     }
 
     /// Reads a Vec of instances from a binary representation.
-    /// If padding is true, and the combined length of the binary fields is below 128 bytes,
-    /// the missing number of bytes are skipped to make the byte pattern compatible with
-    /// the XA structure in C.
+    /// If padding is true, and the combined length of the binary fields is
+    /// below 128 bytes, the missing number of bytes are skipped to make
+    /// the byte pattern compatible with the XA structure in C.
     pub fn parse(bytes: &[u8], count: u64, padding: bool) -> XaResult<Vec<XaTransactionId>> {
         let mut rdr = io::Cursor::new(bytes);
         let mut result = Vec::<XaTransactionId>::new();
@@ -118,7 +119,7 @@ impl XaTransactionId {
                 }
             }
 
-            result.push(XaTransactionId::new(
+            result.push(XaTransactionId::try_new(
                 format_id,
                 global_tid,
                 branch_qualifier,
@@ -136,9 +137,7 @@ impl fmt::Debug for XaTransactionId {
             write!(
                 f,
                 "XaTransactionId {{format_id: {}, global_tid: {:?}, branch_qualifier: {:?} }}",
-                self.format_id,
-                self.global_tid,
-                self.branch_qualifier
+                self.format_id, self.global_tid, self.branch_qualifier
             )
         }
     }

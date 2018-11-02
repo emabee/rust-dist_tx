@@ -64,7 +64,6 @@ impl RmRc {
     }
 }
 
-
 /// Represents the possible errors that can occur in a `ResourceManager`.
 #[derive(Debug)]
 pub struct RmError {
@@ -74,7 +73,7 @@ pub struct RmError {
 impl RmError {
     /// Factory method.
     pub fn new(c: ErrorCode, s: String) -> RmError {
-        RmError { c: c, s: s }
+        RmError { c, s }
     }
     /// Returns the kind of error that has occured.
     pub fn get_code(&self) -> ErrorCode {
@@ -85,7 +84,6 @@ impl RmError {
         self.s.clone()
     }
 }
-
 
 /// Errors occuring in resource managers.
 #[derive(Clone, Debug)]

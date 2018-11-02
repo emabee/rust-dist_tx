@@ -1,6 +1,6 @@
-use rm::rm_error::RmRc;
-use rm::RmResult;
-use tm::XaTransactionId;
+use crate::rm::rm_error::RmRc;
+use crate::rm::RmResult;
+use crate::tm::XaTransactionId;
 
 /// Interface of a resource manager, as required by a transaction manager.
 ///

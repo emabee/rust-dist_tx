@@ -45,8 +45,8 @@ bitflags! {
 impl Flags {
     /// Returns `true` if only the flags in `other` are contained within `self`.
     #[inline]
-    pub fn contains_only(&self, other: Flags) -> bool {
-        (*self & !other).is_empty()
+    pub fn contains_only(self, other: Flags) -> bool {
+        (self & !other).is_empty()
     }
 }
 
