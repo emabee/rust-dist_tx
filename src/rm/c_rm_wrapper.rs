@@ -1,11 +1,11 @@
-use crate::rm::rm_error::RmRc;
-use crate::rm::Flags;
-use crate::rm::rm_error::RmResult;
 use crate::rm::c_resource_manager::CResourceManager;
 use crate::rm::resource_manager::ResourceManager;
+use crate::rm::rm_error::RmRc;
+use crate::rm::rm_error::RmResult;
+use crate::rm::Flags;
 use crate::tm::XaTransactionId;
 
-/// Wrapper around and instance of `CResourceManager` that implements `ResourceManager`.
+/// Wraps an instance of `CResourceManager` and implements `ResourceManager`.
 ///
 /// For registering an instance of "`YourCResourceManager`" at a transaction manager,
 /// just use a `Box<CRmWrapper(YourCResourceManager)>`.

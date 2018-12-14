@@ -1,10 +1,10 @@
-use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use crate::tm::xa_error::{XaError, XaResult};
+use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std::fmt;
 use std::io::{self, Read, Write};
 use std::iter::repeat;
 
-/// The ID of a distributed transaction, analogous to the
+/// The ID of a distributed transaction, in analogy to the
 /// [X/Open XA standard](http://pubs.opengroup.org/onlinepubs/009680699/toc.pdf).
 ///
 #[derive(Clone)]

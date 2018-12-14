@@ -2,7 +2,6 @@ use crate::rm::RmError;
 use std::error::Error;
 use std::io;
 
-
 /// Abbreviation for `Result<T, XaError>`.
 pub type XaResult<T> = Result<T, XaError>;
 

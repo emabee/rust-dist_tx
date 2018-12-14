@@ -14,7 +14,6 @@ pub trait ResourceManager {
     /// Tells the server to resume working on behalf of the given transaction branch.
     fn start_by_resuming(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;
 
-
     /// Tells the server to end working on behalf of the given transaction branch.
     fn end_success(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;
 
@@ -25,10 +24,8 @@ pub trait ResourceManager {
     /// Tells the server to suspend working on behalf of the given transaction branch.
     fn end_suspend(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;
 
-
     /// Tells the server to prepare to commit the work done in the given transaction branch.
     fn prepare(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;
-
 
     /// Tells the server to commit the work done in the given prepared transaction branch.
     fn commit(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;
@@ -38,7 +35,6 @@ pub trait ResourceManager {
 
     /// Tells the server to rollback the work done in the given transaction branch.
     fn rollback(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;
-
 
     /// Tells the server to forget about the given heuristically completed transaction.
     fn forget(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;

@@ -1,8 +1,8 @@
-use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use crate::rm::RmRc;
 use crate::rm::RmResult;
 use crate::rm::{ResourceManager, RmError};
 use crate::tm::{TmStatus, TransactionManager, XaError, XaResult, XaTransactionId};
+use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
@@ -177,14 +177,16 @@ impl SimpleTransactionManager {
         }
         self.status = TmStatus::IDLE;
         match result {
-            Err(e) => if let XaError::RmErrors(v) = e {
-                Err(XaError::Inconsistency(
-                    format!("rm_rollback() failed after a failed {}()", method),
-                    v,
-                ))
-            } else {
-                Err(e)
-            },
+            Err(e) => {
+                if let XaError::RmErrors(v) = e {
+                    Err(XaError::Inconsistency(
+                        format!("rm_rollback() failed after a failed {}()", method),
+                        v,
+                    ))
+                } else {
+                    Err(e)
+                }
+            }
             Ok(()) => Ok(()),
         }
     }

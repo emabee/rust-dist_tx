@@ -57,8 +57,6 @@ pub trait TransactionManager {
     fn get_status(&mut self) -> XaResult<TmStatus>;
 }
 
-
-
 bitflags! {
     /// States of a `TransactionManager`.
     #[derive(Default)]

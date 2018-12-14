@@ -1,5 +1,5 @@
-use crate::rm::rm_error::RmRc;
 use crate::rm::flags::Flags;
+use crate::rm::rm_error::RmRc;
 use crate::rm::RmResult;
 use crate::tm::XaTransactionId;
 
