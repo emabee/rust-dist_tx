@@ -37,7 +37,7 @@ const FORMAT_ID: i32 = 99;
 pub struct SimpleTransactionManager {
     name: String,
     id: u64,
-    rms: HashMap<u64, Box<ResourceManager>>,
+    rms: HashMap<u64, Box<dyn ResourceManager>>,
     last_gtid: u64,
     current_gtid: Option<u64>,
     status: TmStatus,
@@ -51,7 +51,7 @@ impl SimpleTransactionManager {
         SimpleTransactionManager {
             name,
             id: s.finish() & (u64::MAX - 0b_1111_1111_u64),
-            rms: HashMap::<u64, Box<ResourceManager>>::new(),
+            rms: HashMap::<u64, Box<dyn ResourceManager>>::new(),
             last_gtid: 0,
             current_gtid: None,
             status: TmStatus::IDLE,
@@ -95,7 +95,7 @@ impl SimpleTransactionManager {
 
     fn rm_action<F>(&mut self, action: F, global_tid: u64) -> XaResult<()>
     where
-        F: Fn(&mut Box<ResourceManager>, &XaTransactionId) -> RmResult<RmRc>,
+        F: Fn(&mut Box<dyn ResourceManager>, &XaTransactionId) -> RmResult<RmRc>,
     {
         let mut errors = Vec::<RmError>::new();
         for (rm_id, rm) in &mut self.rms {
@@ -235,7 +235,7 @@ fn new_xatid(global_tid: u64, tm_id: u64, rm_id: u64) -> XaTransactionId {
 impl TransactionManager for SimpleTransactionManager {
     fn register(
         &mut self,
-        mut rm: Box<ResourceManager>,
+        mut rm: Box<dyn ResourceManager>,
         rm_id: u64,
         cleanup: bool,
     ) -> XaResult<()> {

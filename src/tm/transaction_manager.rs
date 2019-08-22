@@ -16,7 +16,8 @@ pub trait TransactionManager {
     /// Note that `Box<CResourceManager>` also implements `ResourceManager`, so you can hand in
     /// here a `Box<Box<ResourceManagerImpl>>`.
     /// Note that each registration must use a different rm_id - overwrites will not be allowed.
-    fn register(&mut self, rm: Box<ResourceManager>, rm_id: u64, cleanup: bool) -> XaResult<()>;
+    fn register(&mut self, rm: Box<dyn ResourceManager>, rm_id: u64, cleanup: bool)
+        -> XaResult<()>;
 
     /// Unregister a ResourceManager.
     fn unregister(&mut self, rm_id: u64) -> XaResult<()>;
