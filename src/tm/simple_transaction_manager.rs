@@ -1,25 +1,23 @@
-use crate::rm::RmRc;
-use crate::rm::RmResult;
-use crate::rm::{ResourceManager, RmError};
+use crate::rm::{ResourceManager, RmError, RmRc, RmResult};
 use crate::tm::{TmStatus, TransactionManager, XaError, XaResult, XaTransactionId};
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
+use log::{debug, trace};
 use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use std::io::Cursor;
 use std::u64;
 
-/// The format id that is used for the `XaTransactionId`s of
-/// `SimpleTransactionManager`.
+/// The format id that is used for the `XaTransactionId`s of `SimpleTransactionManager`.
 const FORMAT_ID: i32 = 99;
 
 /// `SimpleTransactionManager`
 ///
 /// * identifies itself with a `u64` (hash of its name)
-/// * identifies the resource managers with a `u64` given during the
-/// registration * enumerates its global transactions with a `u64` counter,
-/// starting with 0, or, if higher values are found during rm-registration,
-/// with the highest found number (plus 1)
+/// * identifies the resource managers with a `u64` given during the registration
+/// * enumerates its global transactions with a `u64` counter,
+///   starting with 0, or, if higher values are found during rm-registration,
+///   with the highest found number (plus 1)
 ///
 /// uses `XaTransactionId` with
 ///
@@ -34,6 +32,7 @@ const FORMAT_ID: i32 = 99;
 ///
 /// No support is provided for multi-threading á la XA.
 ///
+#[derive(Debug)]
 pub struct SimpleTransactionManager {
     name: String,
     id: u64,
@@ -44,13 +43,15 @@ pub struct SimpleTransactionManager {
 }
 impl SimpleTransactionManager {
     /// Produces a new instance.
-    pub fn new(name: String) -> SimpleTransactionManager {
+    #[must_use]
+    pub fn new<S: AsRef<str>>(name: S) -> SimpleTransactionManager {
         trace!("new()");
+        let name = name.as_ref().to_string();
         let mut s = DefaultHasher::new();
         name.hash(&mut s);
         SimpleTransactionManager {
             name,
-            id: s.finish() & (u64::MAX - 0b_1111_1111_u64),
+            id: s.finish() & (u64::max_value() - 0b_1111_1111_u64),
             rms: HashMap::<u64, Box<dyn ResourceManager>>::new(),
             last_gtid: 0,
             current_gtid: None,
@@ -77,18 +78,19 @@ impl SimpleTransactionManager {
     }
 
     fn validate_and_set_status(&mut self, required: TmStatus, new: TmStatus) -> XaResult<()> {
-        if !required.contains(self.status) {
+        if required.contains(self.status) {
+            self.status = new;
+            Ok(())
+        } else {
             Err(XaError::UsageDetails(format!(
                 "SimpleTransactionManager is in state {:?}, but state {:?} is required",
                 self.status, required
             )))
-        } else {
-            self.status = new;
-            Ok(())
         }
     }
 
     /// Reports the name of this instance.
+    #[must_use]
     pub fn name(&self) -> &str {
         &self.name
     }
@@ -159,21 +161,11 @@ impl SimpleTransactionManager {
     //     panic!("not yet implemented")
     // }
 
-    fn trace_error(&self, e: &XaError, gtid: u64, method_name: &'static str) {
-        if let XaError::RmErrors(ref vec_rmerr) = *e {
-            for rm in vec_rmerr {
-                trace!("{}({}) failed due to {:?}", method_name, gtid, rm);
-            }
-        } else {
-            trace!("error in {}: {}", method_name, e.get_description());
-        }
-    }
-
     fn try_rollback_after(&mut self, current_gtid: u64, method: &'static str) -> XaResult<()> {
         self.status = TmStatus::ROLLINGBACK;
         let result = self.rm_rollback(current_gtid);
         if let Err(ref e) = result {
-            self.trace_error(e, current_gtid, "error in rm_rollback");
+            trace_error(e, current_gtid, "error in rm_rollback");
         }
         self.status = TmStatus::IDLE;
         match result {
@@ -223,12 +215,25 @@ impl SimpleTransactionManager {
     }
 }
 
+fn trace_error(e: &XaError, gtid: u64, method_name: &'static str) {
+    if let XaError::RmErrors(ref vec_rmerr) = *e {
+        for rm in vec_rmerr {
+            trace!("{}({}) failed due to {:?}", method_name, gtid, rm);
+        }
+    } else {
+        trace!("error in {}: {}", method_name, e);
+    }
+}
+
+#[allow(clippy::similar_names)]
 fn new_xatid(global_tid: u64, tm_id: u64, rm_id: u64) -> XaTransactionId {
-    let mut v_gt: Vec<u8> = vec![];
+    let mut v_gt = Vec::<u8>::with_capacity(64);
     v_gt.write_u64::<LittleEndian>(global_tid).unwrap();
-    let mut v_bq: Vec<u8> = vec![];
+
+    let mut v_bq = Vec::<u8>::with_capacity(128);
     v_bq.write_u64::<LittleEndian>(tm_id).unwrap();
     v_bq.write_u64::<LittleEndian>(rm_id).unwrap();
+
     XaTransactionId::try_new(FORMAT_ID, v_gt, v_bq).unwrap()
 }
 
@@ -355,21 +360,21 @@ impl TransactionManager for SimpleTransactionManager {
             // 1. end_success()
             trace!("commit() -> rm_end_success()");
             if let Err(e) = self.rm_end_success(current_gtid) {
-                self.trace_error(&e, current_gtid, "rm_end_success");
+                trace_error(&e, current_gtid, "rm_end_success");
                 self.try_rollback_after(current_gtid, "rm_end_success")?;
             }
 
             // 2. prepare()
             trace!("commit() -> rm_prepare()");
             if let Err(e) = self.rm_prepare(current_gtid) {
-                self.trace_error(&e, current_gtid, "rm_prepare");
+                trace_error(&e, current_gtid, "rm_prepare");
                 self.try_rollback_after(current_gtid, "rm_prepare")?;
             }
 
             // 3. commit()
             trace!("commit() -> rm_commit()");
             if let Err(e) = self.rm_commit(current_gtid) {
-                self.trace_error(&e, current_gtid, "rm_commit");
+                trace_error(&e, current_gtid, "rm_commit");
                 self.try_rollback_after(current_gtid, "rm_commit")?;
             }
         }

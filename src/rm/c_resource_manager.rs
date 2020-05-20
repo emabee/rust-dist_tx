@@ -11,7 +11,11 @@ pub trait CResourceManager {
     /// # Arguments
     ///
     /// * `xid` - The id of the transaction branch.
-    /// * `flag` - One of Flag::default(), Flag::JOIN, Flag::RESUME.
+    /// * `flag` - One of `Flag::default()`, `Flag::JOIN`, `Flag::RESUME`.
+    ///
+    /// # Errors
+    ///
+    /// `RmError` if the request cannot be handled regularily.
     fn start(&mut self, id: &XaTransactionId, flag: Flags) -> RmResult<RmRc>;
 
     /// Tells the server to end work on behalf of a given transaction branch.
@@ -19,7 +23,11 @@ pub trait CResourceManager {
     /// # Arguments
     ///
     /// * `xid` - The id of the transaction branch.
-    /// * `flag` - One of Flags::SUCCESS, Flags::FAIL, or Flags::SUSPEND.
+    /// * `flag` - One of `Flags::SUCCESS`, `Flags::FAIL`, or `Flags::SUSPEND`.
+    ///
+    /// # Errors
+    ///
+    /// `RmError` if the request cannot be handled regularily.
     fn end(&mut self, id: &XaTransactionId, flag: Flags) -> RmResult<RmRc>;
 
     /// Tells the server to prepare to commit the work done in the given transaction branch.
@@ -27,6 +35,10 @@ pub trait CResourceManager {
     /// # Arguments
     ///
     /// * `xid` - The id of the transaction branch.
+    ///
+    /// # Errors
+    ///
+    /// `RmError` if the request cannot be handled regularily.
     fn prepare(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;
 
     /// Tells the server to commit the work done in the given transaction branch.
@@ -34,7 +46,11 @@ pub trait CResourceManager {
     /// # Arguments
     ///
     /// * `xid` - The id of the transaction branch.
-    /// * `flag` - One of Flags::ONE_PHASE, Flags::default().
+    /// * `flag` - One of `Flags::ONE_PHASE`, `Flags::default()`.
+    ///
+    /// # Errors
+    ///
+    /// `RmError` if the request cannot be handled regularily.
     fn commit(&mut self, id: &XaTransactionId, flag: Flags) -> RmResult<RmRc>;
 
     /// Tells the server to roll back the work done in the given transaction branch.
@@ -42,6 +58,10 @@ pub trait CResourceManager {
     /// # Arguments
     ///
     /// * `xid` - The id of the transaction branch.
+    ///
+    /// # Errors
+    ///
+    /// `RmError` if the request cannot be handled regularily.
     fn rollback(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;
 
     /// Tells the server to forget about a heuristically completed transaction.
@@ -49,12 +69,20 @@ pub trait CResourceManager {
     /// # Arguments
     ///
     /// * `xid` - The id of the transaction branch.
+    ///
+    /// # Errors
+    ///
+    /// `RmError` if the request cannot be handled regularily.
     fn forget(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;
 
     /// Returns a list of transactions that have been prepared or heuristically completed.
     ///
     /// # Arguments
     ///
-    /// * `flag` - One of Flags::START_RECOVERY_SCAN, Flags::END_RECOVERY_SCAN, or none.
+    /// * `flag` - One of `Flags::START_RECOVERY_SCAN`, `Flags::END_RECOVERY_SCAN`, or none.
+    ///
+    /// # Errors
+    ///
+    /// `RmError` if the request cannot be handled regularily.
     fn recover(&mut self, flag: Flags) -> RmResult<Vec<XaTransactionId>>;
 }

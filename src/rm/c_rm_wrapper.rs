@@ -1,17 +1,15 @@
-use crate::rm::c_resource_manager::CResourceManager;
-use crate::rm::resource_manager::ResourceManager;
-use crate::rm::rm_error::RmRc;
-use crate::rm::rm_error::RmResult;
-use crate::rm::Flags;
+use crate::rm::{CResourceManager, Flags, ResourceManager, RmRc, RmResult};
 use crate::tm::XaTransactionId;
+use log::trace;
 
 /// Wraps an instance of `CResourceManager` and implements `ResourceManager`.
 ///
 /// For registering an instance of "`YourCResourceManager`" at a transaction manager,
 /// just use a `Box<CRmWrapper(YourCResourceManager)>`.
+#[derive(Debug)]
 pub struct CRmWrapper<T>(pub T);
 
-impl<T: CResourceManager> ResourceManager for CRmWrapper<T> {
+impl<T: CResourceManager + std::fmt::Debug> ResourceManager for CRmWrapper<T> {
     fn start(&mut self, id: &XaTransactionId) -> RmResult<RmRc> {
         trace!("start() with {:?}", id);
         self.0.start(id, Flags::default())

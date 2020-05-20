@@ -11,20 +11,32 @@ use crate::tm::XaResult;
 ///
 ///
 pub trait TransactionManager {
-    /// Register a ResourceManager.
+    /// Register a `ResourceManager`.
     ///
     /// Note that `Box<CResourceManager>` also implements `ResourceManager`, so you can hand in
     /// here a `Box<Box<ResourceManagerImpl>>`.
-    /// Note that each registration must use a different rm_id - overwrites will not be allowed.
+    /// Note that each registration must use a different `rm_id` - overwrites will not be allowed.
+    ///
+    /// # Errors
+    ///
+    /// `XaError` if the request cannot be handled regularily.
     fn register(&mut self, rm: Box<dyn ResourceManager>, rm_id: u64, cleanup: bool)
         -> XaResult<()>;
 
-    /// Unregister a ResourceManager.
+    /// Unregister a `ResourceManager`.
+    ///
+    /// # Errors
+    ///
+    /// `XaError` if the request cannot be handled regularily.
     fn unregister(&mut self, rm_id: u64) -> XaResult<()>;
 
     /// Starts a new transaction with a fresh global TA ID and one branch per registered RM.
     ///
     /// The method fails if the last transaction is not yet completed.
+    ///
+    /// # Errors
+    ///
+    /// `XaError` if the request cannot be handled regularily.
     fn start_transaction(&mut self) -> XaResult<()>;
 
     // /// Obtains a list of open Transactions-IDs from the registered resource managers.
@@ -45,20 +57,36 @@ pub trait TransactionManager {
     ///
     /// If successful, the transaction is set to state `TmStatus::Committed`, otherwise to
     /// `TmStatus::Failed` or `TmStatus::RolledBack`.
+    ///
+    /// # Errors
+    ///
+    /// `XaError` if the request cannot be handled regularily.
     fn commit_transaction(&mut self) -> XaResult<()>;
 
     /// Rolls the transaction back, discarding all changes, and setting the status to
     /// `TmStatus::RolledBack`.
+    ///
+    /// # Errors
+    ///
+    /// `XaError` if the request cannot be handled regularily.
     fn rollback_transaction(&mut self) -> XaResult<()>;
 
     /// Mark the transaction that its only possible outcome is to be rolled back.
+    ///
+    /// # Errors
+    ///
+    /// `XaError` if the request cannot be handled regularily.
     fn set_transaction_rollbackonly(&mut self) -> XaResult<()>;
 
     /// Returns the status of the transaction.
+    ///
+    /// # Errors
+    ///
+    /// `XaError` if the request cannot be handled regularily.
     fn get_status(&mut self) -> XaResult<TmStatus>;
 }
 
-bitflags! {
+bitflags::bitflags! {
     /// States of a `TransactionManager`.
     #[derive(Default)]
     pub struct TmStatus: u32 {

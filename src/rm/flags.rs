@@ -1,4 +1,4 @@
-bitflags! {
+bitflags::bitflags! {
     /// Flag values that are used by the methods in
     /// [`ResourceManager`](trait.ResourceManager.html).
     #[derive(Default)]
@@ -45,6 +45,7 @@ bitflags! {
 impl Flags {
     /// Returns `true` if only the flags in `other` are contained within `self`.
     #[inline]
+    #[must_use]
     pub fn contains_only(self, other: Flags) -> bool {
         (self & !other).is_empty()
     }

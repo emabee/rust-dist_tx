@@ -40,6 +40,7 @@ pub enum RmRc {
 }
 impl RmRc {
     /// Instantiate from the error code as defined in the XA standard.
+    #[must_use]
     pub fn from_i32(i: i32) -> RmRc {
         match i {
             100 => RmRc::RollbackUnspecified,
@@ -72,14 +73,17 @@ pub struct RmError {
 }
 impl RmError {
     /// Factory method.
+    #[must_use]
     pub fn new(c: ErrorCode, s: String) -> RmError {
         RmError { c, s }
     }
     /// Returns the kind of error that has occured.
+    #[must_use]
     pub fn get_code(&self) -> ErrorCode {
         self.c.clone()
     }
     /// Returns a textual description of the error.
+    #[must_use]
     pub fn get_description(&self) -> String {
         self.s.clone()
     }
@@ -87,6 +91,7 @@ impl RmError {
 
 /// Errors occuring in resource managers.
 #[derive(Clone, Debug)]
+#[allow(clippy::pub_enum_variant_names)]
 pub enum ErrorCode {
     /// A resource manager error occurred in the transaction branch.
     RmError,
@@ -105,6 +110,7 @@ pub enum ErrorCode {
 }
 impl ErrorCode {
     /// Instantiate from the error code as defined in the XA standard.
+    #[must_use]
     pub fn from_i32(i: i32) -> ErrorCode {
         match i {
             -3 => ErrorCode::RmError,

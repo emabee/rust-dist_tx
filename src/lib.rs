@@ -25,7 +25,7 @@
 //!
 //! ```rust
 //! # use dist_tx::tm::SimpleTransactionManager;
-//!     let mut tm = SimpleTransactionManager::new("XA Demo".to_owned());
+//!     let mut tm = SimpleTransactionManager::new("XA Demo");
 //! ```
 //!
 //! Then retrieve a `ResourceManager` implementation from each connection,
@@ -82,13 +82,10 @@
 //! (which implements `rm::ResourceManager`).
 //!
 
-#![warn(missing_docs)]
-
-#[macro_use]
-extern crate bitflags;
-extern crate byteorder;
-#[macro_use]
-extern crate log;
+#![deny(missing_docs)]
+#![deny(missing_debug_implementations)]
+#![deny(clippy::all)]
+#![deny(clippy::pedantic)]
 
 pub mod rm;
 pub mod tm;
