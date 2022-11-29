@@ -1,5 +1,5 @@
 use crate::rm::ResourceManager;
-use crate::tm::XaResult;
+use crate::tm::XaError;
 
 /// A transaction manager for distributed transactions.
 ///
@@ -20,15 +20,19 @@ pub trait TransactionManager {
     /// # Errors
     ///
     /// `XaError` if the request cannot be handled regularily.
-    fn register(&mut self, rm: Box<dyn ResourceManager>, rm_id: u64, cleanup: bool)
-        -> XaResult<()>;
+    fn register(
+        &mut self,
+        rm: Box<dyn ResourceManager>,
+        rm_id: u64,
+        cleanup: bool,
+    ) -> Result<(), XaError>;
 
     /// Unregister a `ResourceManager`.
     ///
     /// # Errors
     ///
     /// `XaError` if the request cannot be handled regularily.
-    fn unregister(&mut self, rm_id: u64) -> XaResult<()>;
+    fn unregister(&mut self, rm_id: u64) -> Result<(), XaError>;
 
     /// Starts a new transaction with a fresh global TA ID and one branch per registered RM.
     ///
@@ -37,10 +41,10 @@ pub trait TransactionManager {
     /// # Errors
     ///
     /// `XaError` if the request cannot be handled regularily.
-    fn start_transaction(&mut self) -> XaResult<()>;
+    fn start_transaction(&mut self) -> Result<(), XaError>;
 
     // /// Obtains a list of open Transactions-IDs from the registered resource managers.
-    //     fn recover() -> XaResult<Vec<T>>;
+    //     fn recover() -> Result<Vec<T>,XaError>;
     // FIXME we'll need a function to continue with one of these XaTransactions.
 
     // /// Sets a non-default timeout value for transactions being started subsequently with
@@ -61,7 +65,7 @@ pub trait TransactionManager {
     /// # Errors
     ///
     /// `XaError` if the request cannot be handled regularily.
-    fn commit_transaction(&mut self) -> XaResult<()>;
+    fn commit_transaction(&mut self) -> Result<(), XaError>;
 
     /// Rolls the transaction back, discarding all changes, and setting the status to
     /// `TmStatus::RolledBack`.
@@ -69,27 +73,27 @@ pub trait TransactionManager {
     /// # Errors
     ///
     /// `XaError` if the request cannot be handled regularily.
-    fn rollback_transaction(&mut self) -> XaResult<()>;
+    fn rollback_transaction(&mut self) -> Result<(), XaError>;
 
     /// Mark the transaction that its only possible outcome is to be rolled back.
     ///
     /// # Errors
     ///
     /// `XaError` if the request cannot be handled regularily.
-    fn set_transaction_rollbackonly(&mut self) -> XaResult<()>;
+    fn set_transaction_rollbackonly(&mut self) -> Result<(), XaError>;
 
     /// Returns the status of the transaction.
     ///
     /// # Errors
     ///
     /// `XaError` if the request cannot be handled regularily.
-    fn get_status(&mut self) -> XaResult<TmStatus>;
+    fn get_status(&mut self) -> Result<Status, XaError>;
 }
 
 bitflags::bitflags! {
     /// States of a `TransactionManager`.
     #[derive(Default)]
-    pub struct TmStatus: u32 {
+    pub struct Status: u32 {
         /// No transaction in use.
         const IDLE = 0x00_00_00_01;
 

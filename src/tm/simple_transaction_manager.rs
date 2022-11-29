@@ -1,12 +1,15 @@
-use crate::rm::{ResourceManager, RmError, RmRc, RmResult};
-use crate::tm::{TmStatus, TransactionManager, XaError, XaResult, XaTransactionId};
+use crate::{
+    rm::{Error, ResourceManager, ReturnCode},
+    tm::{Status, TransactionManager, XaError, XaTransactionId},
+};
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use log::{debug, trace};
-use std::collections::hash_map::DefaultHasher;
-use std::collections::HashMap;
-use std::hash::{Hash, Hasher};
-use std::io::Cursor;
-use std::u64;
+use std::{
+    collections::{hash_map::DefaultHasher, HashMap},
+    hash::{Hash, Hasher},
+    io::Cursor,
+    u64,
+};
 
 /// The format id that is used for the `XaTransactionId`s of `SimpleTransactionManager`.
 const FORMAT_ID: i32 = 99;
@@ -39,7 +42,7 @@ pub struct SimpleTransactionManager {
     rms: HashMap<u64, Box<dyn ResourceManager>>,
     last_gtid: u64,
     current_gtid: Option<u64>,
-    status: TmStatus,
+    status: Status,
 }
 impl SimpleTransactionManager {
     /// Produces a new instance.
@@ -55,7 +58,7 @@ impl SimpleTransactionManager {
             rms: HashMap::<u64, Box<dyn ResourceManager>>::new(),
             last_gtid: 0,
             current_gtid: None,
-            status: TmStatus::IDLE,
+            status: Status::IDLE,
         }
     }
 
@@ -70,21 +73,21 @@ impl SimpleTransactionManager {
         self.last_gtid
     }
 
-    fn get_current_gtid(&mut self) -> XaResult<u64> {
+    fn get_current_gtid(&mut self) -> Result<u64, XaError> {
         match self.current_gtid {
             None => Err(XaError::Usage("No current transaction set")),
             Some(u) => Ok(u),
         }
     }
 
-    fn validate_and_set_status(&mut self, required: TmStatus, new: TmStatus) -> XaResult<()> {
+    fn validate_and_set_status(&mut self, required: Status, new: Status) -> Result<(), XaError> {
         if required.contains(self.status) {
             self.status = new;
             Ok(())
         } else {
             Err(XaError::UsageDetails(format!(
-                "SimpleTransactionManager is in state {:?}, but state {:?} is required",
-                self.status, required
+                "SimpleTransactionManager is in state {:?}, but state {required:?} is required",
+                self.status,
             )))
         }
     }
@@ -95,15 +98,15 @@ impl SimpleTransactionManager {
         &self.name
     }
 
-    fn rm_action<F>(&mut self, action: F, global_tid: u64) -> XaResult<()>
+    fn rm_action<F>(&mut self, action: F, global_tid: u64) -> Result<(), XaError>
     where
-        F: Fn(&mut Box<dyn ResourceManager>, &XaTransactionId) -> RmResult<RmRc>,
+        F: Fn(&mut Box<dyn ResourceManager>, &XaTransactionId) -> Result<ReturnCode, Error>,
     {
-        let mut errors = Vec::<RmError>::new();
+        let mut errors = Vec::<Error>::new();
         for (rm_id, rm) in &mut self.rms {
             let xatid = new_xatid(global_tid, self.id, *rm_id);
             if let Err(e) = action(rm, &xatid) {
-                errors.push(e)
+                errors.push(e);
             }
         }
         if errors.is_empty() {
@@ -113,47 +116,47 @@ impl SimpleTransactionManager {
         }
     }
 
-    fn rm_start(&mut self, global_tid: u64) -> XaResult<()> {
+    fn rm_start(&mut self, global_tid: u64) -> Result<(), XaError> {
         self.rm_action(|rm, xatid| ((**rm).start(xatid)), global_tid)
     }
 
-    // fn rm_join(&mut self, global_tid: &u64) -> XaResult<()> {
+    // fn rm_join(&mut self, global_tid: &u64) -> Result<(),XaError> {
     //     self.rm_action(|rm, xatid| ((**rm).start_by_joining(xatid)), global_tid)
     // }
 
-    // fn rm_resume(&mut self, global_tid: &u64) -> XaResult<()> {
+    // fn rm_resume(&mut self, global_tid: &u64) -> Result<(),XaError> {
     //     self.rm_action(|rm, xatid| ((**rm).start_by_resuming(xatid)), global_tid)
     // }
 
-    // fn rm_suspend(&mut self, global_tid: &u64) -> XaResult<()> {
+    // fn rm_suspend(&mut self, global_tid: &u64) -> Result<(),XaError> {
     //     self.rm_action(|rm, xatid| ((**rm).end_suspend(xatid)), global_tid)
     // }
 
-    fn rm_end_success(&mut self, global_tid: u64) -> XaResult<()> {
+    fn rm_end_success(&mut self, global_tid: u64) -> Result<(), XaError> {
         self.rm_action(|rm, xatid| ((**rm).end_success(xatid)), global_tid)
     }
 
-    fn rm_end_failure(&mut self, global_tid: u64) -> XaResult<()> {
+    fn rm_end_failure(&mut self, global_tid: u64) -> Result<(), XaError> {
         self.rm_action(|rm, xatid| ((**rm).end_failure(xatid)), global_tid)
     }
 
-    fn rm_prepare(&mut self, global_tid: u64) -> XaResult<()> {
+    fn rm_prepare(&mut self, global_tid: u64) -> Result<(), XaError> {
         self.rm_action(|rm, xatid| ((**rm).prepare(xatid)), global_tid)
     }
 
-    fn rm_commit(&mut self, global_tid: u64) -> XaResult<()> {
+    fn rm_commit(&mut self, global_tid: u64) -> Result<(), XaError> {
         self.rm_action(|rm, xatid| ((**rm).commit(xatid)), global_tid)
     }
 
-    fn rm_commit_one_phase(&mut self, global_tid: u64) -> XaResult<()> {
+    fn rm_commit_one_phase(&mut self, global_tid: u64) -> Result<(), XaError> {
         self.rm_action(|rm, xatid| ((**rm).commit_one_phase(xatid)), global_tid)
     }
 
-    fn rm_rollback(&mut self, global_tid: u64) -> XaResult<()> {
+    fn rm_rollback(&mut self, global_tid: u64) -> Result<(), XaError> {
         self.rm_action(|rm, xatid| ((**rm).rollback(xatid)), global_tid)
     }
 
-    // fn rm_forget(&mut self, global_tid: &u64) -> XaResult<()> {
+    // fn rm_forget(&mut self, global_tid: &u64) -> Result<(),XaError> {
     //     self.rm_action(|rm, xatid| ((**rm).forget(xatid)), global_tid)
     // }
 
@@ -161,18 +164,22 @@ impl SimpleTransactionManager {
     //     panic!("not yet implemented")
     // }
 
-    fn try_rollback_after(&mut self, current_gtid: u64, method: &'static str) -> XaResult<()> {
-        self.status = TmStatus::ROLLINGBACK;
+    fn try_rollback_after(
+        &mut self,
+        current_gtid: u64,
+        method: &'static str,
+    ) -> Result<(), XaError> {
+        self.status = Status::ROLLINGBACK;
         let result = self.rm_rollback(current_gtid);
         if let Err(ref e) = result {
             trace_error(e, current_gtid, "error in rm_rollback");
         }
-        self.status = TmStatus::IDLE;
+        self.status = Status::IDLE;
         match result {
             Err(e) => {
                 if let XaError::RmErrors(v) = e {
                     Err(XaError::Inconsistency(
-                        format!("rm_rollback() failed after a failed {}()", method),
+                        format!("rm_rollback() failed after a failed {method}()"),
                         v,
                     ))
                 } else {
@@ -243,7 +250,7 @@ impl TransactionManager for SimpleTransactionManager {
         mut rm: Box<dyn ResourceManager>,
         rm_id: u64,
         cleanup: bool,
-    ) -> XaResult<()> {
+    ) -> Result<(), XaError> {
         trace!("register(rm_id = {})", rm_id);
         if self.rms.get(&rm_id).is_some() {
             let errmsg = "cannot register with given rm_id, which is already in use";
@@ -257,7 +264,7 @@ impl TransactionManager for SimpleTransactionManager {
                 trace!("found xid {:?}", xid);
                 if self.is_my_xid_and_rm(xid, rm_id) {
                     trace!("trying to forget {:?}", xid);
-                    (*rm).forget(xid).unwrap_or(RmRc::Ok);
+                    (*rm).forget(xid).unwrap_or(ReturnCode::Ok);
                 }
             }
         }
@@ -266,7 +273,7 @@ impl TransactionManager for SimpleTransactionManager {
         Ok(())
     }
 
-    fn unregister(&mut self, rm_id: u64) -> XaResult<()> {
+    fn unregister(&mut self, rm_id: u64) -> Result<(), XaError> {
         self.rms.remove(&rm_id);
         Ok(())
     }
@@ -277,11 +284,11 @@ impl TransactionManager for SimpleTransactionManager {
     // TM must be in status TmStatus::Idle.
     // If successful, sets status to TmStatus::Active.
     // If not,???
-    fn start_transaction(&mut self) -> XaResult<()> {
+    fn start_transaction(&mut self) -> Result<(), XaError> {
         trace!("start_transaction()");
         self.validate_and_set_status(
-            TmStatus::IDLE | TmStatus::COMMITTED | TmStatus::ROLLEDBACK,
-            TmStatus::ACTIVATING,
+            Status::IDLE | Status::COMMITTED | Status::ROLLEDBACK,
+            Status::ACTIVATING,
         )?;
 
         let global_tid = self.next_global_tid();
@@ -290,7 +297,7 @@ impl TransactionManager for SimpleTransactionManager {
         match self.rm_start(global_tid) {
             Ok(()) => {
                 self.current_gtid = Some(global_tid);
-                self.status = TmStatus::ACTIVE;
+                self.status = Status::ACTIVE;
                 return Ok(());
             }
             Err(e) => {
@@ -327,7 +334,7 @@ impl TransactionManager for SimpleTransactionManager {
         match self.rm_start(global_tid) {
             Ok(()) => {
                 self.current_gtid = Some(global_tid);
-                self.status = TmStatus::ACTIVE;
+                self.status = Status::ACTIVE;
                 Ok(())
             }
             Err(e) => {
@@ -335,7 +342,7 @@ impl TransactionManager for SimpleTransactionManager {
                     "start_transaction() -> rm_start({}), second attempt failed, too",
                     global_tid
                 );
-                self.status = TmStatus::IDLE;
+                self.status = Status::IDLE;
                 Err(e)
             }
         }
@@ -347,10 +354,10 @@ impl TransactionManager for SimpleTransactionManager {
     //
     // If successful, the transaction is set to state `TmStatus::Committed`,
     // otherwise to `TmStatus::Failed` or `TmStatus::RolledBack`.
-    fn commit_transaction(&mut self) -> XaResult<()> {
+    fn commit_transaction(&mut self) -> Result<(), XaError> {
         trace!("commit()");
         let current_gtid = self.get_current_gtid()?;
-        self.validate_and_set_status(TmStatus::ACTIVE, TmStatus::COMMITTING)?;
+        self.validate_and_set_status(Status::ACTIVE, Status::COMMITTING)?;
 
         // shortcut, if possible
         if self.rms.len() < 2 {
@@ -378,38 +385,38 @@ impl TransactionManager for SimpleTransactionManager {
                 self.try_rollback_after(current_gtid, "rm_commit")?;
             }
         }
-        self.status = TmStatus::COMMITTED;
+        self.status = Status::COMMITTED;
 
         Ok(())
     }
 
-    fn rollback_transaction(&mut self) -> XaResult<()> {
+    fn rollback_transaction(&mut self) -> Result<(), XaError> {
         trace!("rollback()");
         let current_gtid = self.get_current_gtid()?;
         match self.status {
-            TmStatus::ACTIVE => {
+            Status::ACTIVE => {
                 trace!("rollback() ACTIVE -> rm_end_failure()");
                 self.rm_end_failure(current_gtid)?;
                 self.rm_rollback(current_gtid)?;
             }
-            TmStatus::PREPARED | TmStatus::ROLLBACK_ONLY => {
+            Status::PREPARED | Status::ROLLBACK_ONLY => {
                 trace!("rollback() PREPARED or ROLLBACK_ONLY -> rm_rollback()");
                 self.rm_rollback(current_gtid)?;
             }
             _ => {}
         }
-        self.status = TmStatus::ROLLEDBACK;
+        self.status = Status::ROLLEDBACK;
         Ok(())
     }
 
-    fn set_transaction_rollbackonly(&mut self) -> XaResult<()> {
+    fn set_transaction_rollbackonly(&mut self) -> Result<(), XaError> {
         self.validate_and_set_status(
-            TmStatus::IDLE | TmStatus::ACTIVE | TmStatus::PREPARED | TmStatus::ROLLBACK_ONLY,
-            TmStatus::ROLLBACK_ONLY,
+            Status::IDLE | Status::ACTIVE | Status::PREPARED | Status::ROLLBACK_ONLY,
+            Status::ROLLBACK_ONLY,
         )
     }
 
-    fn get_status(&mut self) -> XaResult<TmStatus> {
+    fn get_status(&mut self) -> Result<Status, XaError> {
         Ok(self.status)
     }
 }
@@ -417,12 +424,12 @@ impl TransactionManager for SimpleTransactionManager {
 impl Drop for SimpleTransactionManager {
     fn drop(&mut self) {
         trace!("Drop of SimpleTransactionManager");
-        if (TmStatus::ACTIVATING
-            | TmStatus::ACTIVE
-            | TmStatus::PREPARING
-            | TmStatus::PREPARED
-            | TmStatus::ROLLBACK_ONLY
-            | TmStatus::ROLLINGBACK)
+        if (Status::ACTIVATING
+            | Status::ACTIVE
+            | Status::PREPARING
+            | Status::PREPARED
+            | Status::ROLLBACK_ONLY
+            | Status::ROLLINGBACK)
             .contains(self.status)
         {
             let gtid = self.current_gtid.unwrap_or_default();

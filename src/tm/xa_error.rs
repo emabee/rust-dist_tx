@@ -1,8 +1,5 @@
-use crate::rm::RmError;
+use crate::rm::Error as RmError;
 use thiserror::Error;
-
-/// Abbreviation for `Result<T, XaError>`.
-pub type XaResult<T> = Result<T, XaError>;
 
 /// Error of Transaction Manager.
 #[derive(Debug, Error)]

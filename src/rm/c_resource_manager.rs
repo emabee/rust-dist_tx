@@ -1,6 +1,4 @@
-use crate::rm::flags::Flags;
-use crate::rm::rm_error::RmRc;
-use crate::rm::RmResult;
+use crate::rm::{Error, Flags, ReturnCode};
 use crate::tm::XaTransactionId;
 
 /// Interface of a resource manager that is close to the XA standard.
@@ -15,8 +13,8 @@ pub trait CResourceManager {
     ///
     /// # Errors
     ///
-    /// `RmError` if the request cannot be handled regularily.
-    fn start(&mut self, id: &XaTransactionId, flag: Flags) -> RmResult<RmRc>;
+    /// `Error` if the request cannot be handled regularily.
+    fn start(&mut self, id: &XaTransactionId, flag: Flags) -> Result<ReturnCode, Error>;
 
     /// Tells the server to end work on behalf of a given transaction branch.
     ///
@@ -27,8 +25,8 @@ pub trait CResourceManager {
     ///
     /// # Errors
     ///
-    /// `RmError` if the request cannot be handled regularily.
-    fn end(&mut self, id: &XaTransactionId, flag: Flags) -> RmResult<RmRc>;
+    /// `Error` if the request cannot be handled regularily.
+    fn end(&mut self, id: &XaTransactionId, flag: Flags) -> Result<ReturnCode, Error>;
 
     /// Tells the server to prepare to commit the work done in the given transaction branch.
     ///
@@ -38,8 +36,8 @@ pub trait CResourceManager {
     ///
     /// # Errors
     ///
-    /// `RmError` if the request cannot be handled regularily.
-    fn prepare(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;
+    /// `Error` if the request cannot be handled regularily.
+    fn prepare(&mut self, id: &XaTransactionId) -> Result<ReturnCode, Error>;
 
     /// Tells the server to commit the work done in the given transaction branch.
     ///
@@ -50,8 +48,8 @@ pub trait CResourceManager {
     ///
     /// # Errors
     ///
-    /// `RmError` if the request cannot be handled regularily.
-    fn commit(&mut self, id: &XaTransactionId, flag: Flags) -> RmResult<RmRc>;
+    /// `Error` if the request cannot be handled regularily.
+    fn commit(&mut self, id: &XaTransactionId, flag: Flags) -> Result<ReturnCode, Error>;
 
     /// Tells the server to roll back the work done in the given transaction branch.
     ///
@@ -61,8 +59,8 @@ pub trait CResourceManager {
     ///
     /// # Errors
     ///
-    /// `RmError` if the request cannot be handled regularily.
-    fn rollback(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;
+    /// `Error` if the request cannot be handled regularily.
+    fn rollback(&mut self, id: &XaTransactionId) -> Result<ReturnCode, Error>;
 
     /// Tells the server to forget about a heuristically completed transaction.
     ///
@@ -72,8 +70,8 @@ pub trait CResourceManager {
     ///
     /// # Errors
     ///
-    /// `RmError` if the request cannot be handled regularily.
-    fn forget(&mut self, id: &XaTransactionId) -> RmResult<RmRc>;
+    /// `Error` if the request cannot be handled regularily.
+    fn forget(&mut self, id: &XaTransactionId) -> Result<ReturnCode, Error>;
 
     /// Returns a list of transactions that have been prepared or heuristically completed.
     ///
@@ -83,6 +81,6 @@ pub trait CResourceManager {
     ///
     /// # Errors
     ///
-    /// `RmError` if the request cannot be handled regularily.
-    fn recover(&mut self, flag: Flags) -> RmResult<Vec<XaTransactionId>>;
+    /// `Error` if the request cannot be handled regularily.
+    fn recover(&mut self, flag: Flags) -> Result<Vec<XaTransactionId>, Error>;
 }

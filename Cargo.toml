@@ -1,8 +1,8 @@
 [package]
 name = "dist_tx"
-version = "0.2.4"
+version = "0.3.0-unpublished"
 authors = ["emabee <meinolf.block@sap.com>"]
-edition = "2018"
+edition = "2021"
 description = "A rust language binding for XA Distributed Transactions"
 keywords = ["distributed", "transactions", "XA"]
 license = "MIT OR Apache-2.0"

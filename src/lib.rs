@@ -1,10 +1,5 @@
-//! Structs and traits for dealing with distributed transactions.
-//!
-//! This crate is an attempt to provide a reasonable rust language binding for
-//! XA Distributed Transactions.
-//!
-//! So far there is no support for asynchronous operations in resource managers.
-//!
+//! A rust language binding for
+//! [XA Distributed Transactions](https://pubs.opengroup.org/onlinepubs/009680699/toc.pdf).
 //!
 //! ## Example
 //!

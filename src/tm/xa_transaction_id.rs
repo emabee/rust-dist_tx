@@ -1,4 +1,4 @@
-use crate::tm::{XaError, XaResult};
+use crate::tm::XaError;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std::convert::TryInto;
 use std::io::{Read, Write};
@@ -37,7 +37,7 @@ impl XaTransactionId {
         format_id: i32,
         global_tid: Vec<u8>,
         branch_qualifier: Vec<u8>,
-    ) -> XaResult<XaTransactionId> {
+    ) -> Result<XaTransactionId, XaError> {
         if format_id < -1 {
             Err(XaError::Usage("Bad XA transaction id: invalid format-id"))
         } else if global_tid.len() > MAX_BYTES_GLOBAL_TRANSACTION_ID {
@@ -115,7 +115,7 @@ impl XaTransactionId {
     /// # Errors
     ///
     /// `XaError::ReadXid`
-    pub fn parse(bytes: &[u8], count: u64, padding: bool) -> XaResult<Vec<XaTransactionId>> {
+    pub fn parse(bytes: &[u8], count: u64, padding: bool) -> Result<Vec<XaTransactionId>, XaError> {
         let mut rdr = std::io::Cursor::new(bytes);
         let mut result = Vec::<XaTransactionId>::new();
 
