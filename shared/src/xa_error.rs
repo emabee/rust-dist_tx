@@ -1,4 +1,4 @@
-use crate::rm::Error as RmError;
+use crate::RmError;
 use thiserror::Error;
 
 /// Error of Transaction Manager.

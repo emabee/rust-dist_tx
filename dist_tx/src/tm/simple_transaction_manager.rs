@@ -1,6 +1,6 @@
 use crate::{
-    rm::{Error, ResourceManager, ReturnCode},
-    tm::{Status, TransactionManager, XaError, XaTransactionId},
+    rm::ResourceManager, tm::Status, tm::TransactionManager, ReturnCode, RmError, XaError,
+    XaTransactionId,
 };
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use log::{debug, trace};
@@ -100,9 +100,9 @@ impl SimpleTransactionManager {
 
     fn rm_action<F>(&mut self, action: F, global_tid: u64) -> Result<(), XaError>
     where
-        F: Fn(&mut Box<dyn ResourceManager>, &XaTransactionId) -> Result<ReturnCode, Error>,
+        F: Fn(&mut Box<dyn ResourceManager>, &XaTransactionId) -> Result<ReturnCode, RmError>,
     {
-        let mut errors = Vec::<Error>::new();
+        let mut errors = Vec::<RmError>::new();
         for (rm_id, rm) in &mut self.rms {
             let xatid = new_xatid(global_tid, self.id, *rm_id);
             if let Err(e) = action(rm, &xatid) {

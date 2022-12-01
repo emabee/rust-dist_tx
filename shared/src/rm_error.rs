@@ -2,15 +2,15 @@ use super::error_code::ErrorCode;
 
 /// Represents the possible errors that can occur in a `ResourceManager`.
 #[derive(Debug)]
-pub struct Error {
+pub struct RmError {
     c: ErrorCode,
     s: String,
 }
-impl Error {
+impl RmError {
     /// Factory method.
     #[must_use]
-    pub fn new(c: ErrorCode, s: String) -> Error {
-        Error { c, s }
+    pub fn new(c: ErrorCode, s: String) -> RmError {
+        RmError { c, s }
     }
     /// Returns the kind of error that has occured.
     #[must_use]

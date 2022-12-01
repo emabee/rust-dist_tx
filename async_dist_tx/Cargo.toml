@@ -1,0 +1,18 @@
+[package]
+name = "async_dist_tx"
+version = "0.3.0-unpublished"
+authors = ["emabee <meinolf.block@sap.com>"]
+edition = "2021"
+description = "A rust language binding for XA Distributed Transactions"
+keywords = ["distributed", "transactions", "XA"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/emabee/rust-dist_tx"
+documentation = "https://docs.rs/dist_tx/"
+
+[dependencies]
+async-trait = "0.1"
+bitflags = "1.0"
+byteorder = "1.3"
+log = "0.4"
+thiserror = "1.0"
+shared = {path = "../shared"}

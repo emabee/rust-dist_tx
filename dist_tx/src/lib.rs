@@ -84,3 +84,4 @@
 
 pub mod rm;
 pub mod tm;
+pub use shared::{ErrorCode, Flags, ReturnCode, RmError, XaError, XaTransactionId};

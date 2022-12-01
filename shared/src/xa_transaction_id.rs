@@ -1,4 +1,4 @@
-use crate::tm::XaError;
+use crate::XaError;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std::convert::TryInto;
 use std::io::{Read, Write};
