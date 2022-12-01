@@ -5,7 +5,7 @@
 //!
 //! Let's assume we have two (or more) different database connections,
 //! most likely to different database installations,
-//! and we want to use two-phase-commit to ensure that all our changes to these
+//! and we want to use _two phase commit_ to ensure that all our changes to these
 //! connections are stored consistently (i.e. all or nothing).
 //!
 //! **Precondition**: both connections (i.e. both drivers) have to be prepared for
