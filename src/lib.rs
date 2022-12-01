@@ -27,7 +27,7 @@
 //! and register it at the transaction manager.
 //! Every registered resource manager is registered with a distinct ID.
 //! In the example below we tell the transaction manager to cleanup eventually
-//! existing open transaction left-overs from previous runs for the two ids.
+//! existing open transaction left-overs from previous runs for the two IDs.
 //!
 //! This makes already clear that the IDs (of type `u64`) should be chosen in a way
 //! that minimizes undesired collision probabilities, and maximizes intended "collisions".
