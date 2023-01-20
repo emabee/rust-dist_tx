@@ -1,5 +1,4 @@
-use crate::{rm::ResourceManager, XaError};
-use async_trait::async_trait;
+use crate::{sync::rm::ResourceManager, XaError};
 
 /// A transaction manager for distributed transactions.
 ///
@@ -10,7 +9,6 @@ use async_trait::async_trait;
 /// application interfaces of the resource manager and on the transaction object.
 ///
 ///
-#[async_trait]
 pub trait TransactionManager {
     /// Register a `ResourceManager`.
     ///
@@ -21,7 +19,7 @@ pub trait TransactionManager {
     /// # Errors
     ///
     /// `XaError` if the request cannot be handled regularily.
-    async fn register(
+    fn register(
         &mut self,
         rm: Box<dyn ResourceManager>,
         rm_id: u64,
@@ -42,7 +40,7 @@ pub trait TransactionManager {
     /// # Errors
     ///
     /// `XaError` if the request cannot be handled regularily.
-    async fn start_transaction(&mut self) -> Result<(), XaError>;
+    fn start_transaction(&mut self) -> Result<(), XaError>;
 
     // /// Obtains a list of open Transactions-IDs from the registered resource managers.
     //     fn recover() -> Result<Vec<T>,XaError>;
@@ -66,7 +64,7 @@ pub trait TransactionManager {
     /// # Errors
     ///
     /// `XaError` if the request cannot be handled regularily.
-    async fn commit_transaction(&mut self) -> Result<(), XaError>;
+    fn commit_transaction(&mut self) -> Result<(), XaError>;
 
     /// Rolls the transaction back, discarding all changes, and setting the status to
     /// `TmStatus::RolledBack`.
@@ -74,7 +72,7 @@ pub trait TransactionManager {
     /// # Errors
     ///
     /// `XaError` if the request cannot be handled regularily.
-    async fn rollback_transaction(&mut self) -> Result<(), XaError>;
+    fn rollback_transaction(&mut self) -> Result<(), XaError>;
 
     /// Mark the transaction that its only possible outcome is to be rolled back.
     ///

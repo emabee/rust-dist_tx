@@ -1,7 +1,5 @@
-use crate::{
-    rm::{CResourceManager, ResourceManager},
-    Flags, ReturnCode, RmError, XaTransactionId,
-};
+use super::{CResourceManager, ResourceManager};
+use crate::{Flags, ReturnCode, RmError, XaTransactionId};
 use log::trace;
 
 /// Wraps an instance of `CResourceManager` and implements `ResourceManager`.

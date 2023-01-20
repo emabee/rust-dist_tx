@@ -1,7 +1,5 @@
-use crate::{
-    rm::{CResourceManager, ResourceManager},
-    Flags, ReturnCode, RmError, XaTransactionId,
-};
+use super::{CResourceManager, ResourceManager};
+use crate::{Flags, ReturnCode, RmError, XaTransactionId};
 use async_trait::async_trait;
 use log::trace;
 

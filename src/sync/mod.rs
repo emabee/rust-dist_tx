@@ -1,4 +1,4 @@
-//! A rust language binding for
+//! A synchronous rust language binding for
 //! [XA Distributed Transactions](https://pubs.opengroup.org/onlinepubs/009680699/toc.pdf).
 //!
 //! ## Example
@@ -9,21 +9,22 @@
 //! connections are stored consistently (i.e. all or nothing).
 //!
 //! **Precondition**: both connections (i.e. both drivers) have to be prepared for
-//! working with `async_dist_tx`, and both are not using automatic commit.
+//! working with `dist_tx`, and both are not using automatic commit.
 //!
 //! ```rust,ignore
 //!     let mut conn_a = ...;
 //!     let mut conn_b = ...;
 //! ```
 //!
-//! First instantiate a `SimpleTransactionManager`:
+//! First instantiate a [`SimpleTransactionManager`](crate::sync::tm::SimpleTransactionManager):
 //!
 //! ```rust
-//! # use dist_tx::tm::SimpleTransactionManager;
+//! # use dist_tx::sync::tm::SimpleTransactionManager;
 //!     let mut tm = SimpleTransactionManager::new("XA Demo");
 //! ```
 //!
-//! Then retrieve a `ResourceManager` implementation from each connection,
+//! Then retrieve a [`ResourceManager`](crate::sync::rm::ResourceManager)
+//! implementation from each connection,
 //! and register it at the transaction manager.
 //! Every registered resource manager is registered with a distinct ID.
 //! In the example below we tell the transaction manager to cleanup eventually
@@ -32,24 +33,24 @@
 //! This makes already clear that the IDs (of type `u64`) should be chosen in a way
 //! that minimizes undesired collision probabilities, and maximizes intended "collisions".
 //!
-//! ```rust,no_run
-//!     tm.register(conn_a.get_resource_manager(), id_1, true).await?;
-//!     tm.register(conn_b.get_resource_manager(), id_2, true).await?;
+//! ```rust,ignore
+//!     tm.register(conn_a.get_resource_manager(), id_1, true)?;
+//!     tm.register(conn_b.get_resource_manager(), id_2, true)?;
 //! ```
 //!
 //! Now we start a distributed transaction
 //!
-//! ```rust,no_run
-//!     tm.start_transaction().await?;
+//! ```rust,ignore
+//!     tm.start_transaction()?;
 //! ```
 //!
 //! and then we're ready
 //! to do all required updates via the two database connections:
 //!
-//! ```rust,no_run
+//! ```rust,ignore
 //!     ...
-//!     conn_a.dml(&insert_stmt(1, "foo")).await?;
-//!     conn_b.dml(&insert_stmt(2, "bar")).await?;
+//!     conn_a.dml(&insert_stmt(1, "foo"))?;
+//!     conn_b.dml(&insert_stmt(2, "bar"))?;
 //!     ...
 //! ```
 //!
@@ -58,8 +59,8 @@
 //!
 //! Finally, when all updates were done successfully, we commit the transaction:
 //!
-//! ```rust,no_run
-//!     tm.commit_transaction().await?;
+//! ```rust,ignore
+//!     tm.commit_transaction()?;
 //! ```
 //!
 //! Now all updates are committed and visible, which we could again verify with
@@ -69,19 +70,13 @@
 //! ## Implementation
 //!
 //! Database drivers etc, who want to enable their users to take part in distributed
-//! transactions that are managed via `async_dist_tx`, can either implement
-//! [`rm::ResourceManager`](rm/trait.ResourceManager.html), which is a more
+//! transactions that are managed via `dist_tx`, can either implement
+//! [`ResourceManager`](crate::sync::rm::ResourceManager), which is a more
 //! rust-idiomatic interpretation of the XA resource manager,
-//! or they implement [`rm::CResourceManager`](rm/trait.CResourceManager.html),
-//! which is more C-ish, and wrap it into a [`rm::CRmWrapper`](rm/struct.CRmWrapper.html)
-//! (which implements `rm::ResourceManager`).
+//! or they implement [`CResourceManager`](crate::sync::rm::CResourceManager),
+//! which is more C-ish, and wrap it into a [`CRmWrapper`](crate::sync::rm::CRmWrapper)
+//! (which implements [`ResourceManager`](crate::sync::rm::ResourceManager)).
 //!
-
-#![deny(missing_docs)]
-#![deny(missing_debug_implementations)]
-#![deny(clippy::all)]
-#![deny(clippy::pedantic)]
 
 pub mod rm;
 pub mod tm;
-pub use dist_tx_shared::{ErrorCode, Flags, ReturnCode, RmError, XaError, XaTransactionId};
