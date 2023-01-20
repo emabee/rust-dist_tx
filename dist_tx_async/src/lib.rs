@@ -84,4 +84,4 @@
 
 pub mod rm;
 pub mod tm;
-pub use shared::{ErrorCode, Flags, ReturnCode, RmError, XaError, XaTransactionId};
+pub use dist_tx_shared::{ErrorCode, Flags, ReturnCode, RmError, XaError, XaTransactionId};

@@ -1,2 +1,2 @@
 [workspace]
-members = ["async_dist_tx", "dist_tx","shared"]
+members = ["dist_tx_async", "dist_tx","dist_tx_shared"]

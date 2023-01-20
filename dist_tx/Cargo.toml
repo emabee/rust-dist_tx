@@ -9,14 +9,8 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/emabee/rust-dist_tx"
 documentation = "https://docs.rs/dist_tx/"
 
-[features]
-default = ["async"]
-async = ["async-trait"]
-
 [dependencies]
-async-trait = {version = "0.1", features = [], optional = true}
 bitflags = "1.0"
 byteorder = "1.3"
 log = "0.4"
-thiserror = "1.0"
-shared = {path = "../shared"}
+dist_tx_shared = {path = "../dist_tx_shared"}
