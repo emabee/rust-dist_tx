@@ -1,3 +1,12 @@
+#![cfg_attr(docsrs, feature(doc_cfg))]
+// #![feature(doc_cfg)]
+//
+//
+#![deny(missing_docs)]
+#![deny(missing_debug_implementations)]
+#![deny(clippy::all)]
+#![deny(clippy::pedantic)]
+
 //! Rust language bindings for
 //! [XA Distributed Transactions](https://pubs.opengroup.org/onlinepubs/009680699/toc.pdf).
 //!
@@ -6,12 +15,16 @@
 //!
 //! See the respective module description for more details.
 //!
-#![deny(missing_docs)]
-#![deny(missing_debug_implementations)]
-#![deny(clippy::all)]
-#![deny(clippy::pedantic)]
+//! The features `sync` and `async` are both default features,
+//! but usually you only need one of them. To minimize your dependency,
+//! disable default features and select the feature `sync` or `async` explicitly.
 
+#[cfg(feature = "async")]
+#[cfg_attr(docsrs, doc(cfg(feature = "async")))]
 pub mod a_sync;
+
+#[cfg(feature = "sync")]
+#[cfg_attr(docsrs, doc(cfg(feature = "sync")))]
 pub mod sync;
 
 mod error_code;
