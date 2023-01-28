@@ -1,6 +1,6 @@
 [package]
 name = "dist_tx"
-version = "0.3.0-alpha-1"
+version = "0.3.0"
 authors = ["emabee <meinolf.block@sap.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
@@ -11,8 +11,12 @@ documentation = "https://docs.rs/dist_tx/"
 
 ## docs.rs-specific configuration
 [package.metadata.docs.rs]
-# document all features
 all-features = true
+
+# To make use of this globally, do: 
+#    export RUSTDOCFLAGS="--cfg docsrs" 
+# before calling 
+#    cargo +nightly doc --package hdbconnect_async --all-features --no-deps
 # define the configuration attribute `docsrs`
 rustdoc-args = ["--cfg", "docsrs"]
 

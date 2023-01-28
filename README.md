@@ -4,6 +4,11 @@
 [![Documentation](https://docs.rs/dist_tx/badge.svg)](https://docs.rs/dist_tx)
 [![License](https://img.shields.io/crates/l/dist_tx.svg)](https://github.com/emabee/dist_tx)
 
+[XA Distributed Transactions](https://pubs.opengroup.org/onlinepubs/009680699/toc.pdf)
+support transactions _across_ multiple transactional databases.
+
+This library can be used in synchronous or in asynchronous contexts.
+
 ## Usage
 
 Add `dist_tx` to the dependencies section in your project's `Cargo.toml`:
@@ -15,16 +20,17 @@ dist_tx = "0.3"
 
 ## Crate Features
 
-The lib has two features, `sync` and `async`, which are both default features, but usually you only need one of them. To minimize your dependency, disable default features and select the feature you need explicitly, e.g.
+Technically, the features `sync` and `async` are both optional features,
+usually you need exactly one of them. Select the feature `sync` or `async` explicitly.
 
 ```toml
 [dependencies]
-dist_tx = { version = "0.3", default-features = false, features = ["async"] }
+dist_tx = { version = "0.3", features = ["async"] }
 ```
 
 or
 
 ```toml
 [dependencies]
-dist_tx = { version = "0.3", default_features = false, features = ["sync"] }
+dist_tx = { version = "0.3", features = ["sync"] }
 ```

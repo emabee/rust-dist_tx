@@ -1,7 +1,4 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
-// #![feature(doc_cfg)]
-//
-//
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
 #![deny(clippy::all)]
@@ -15,9 +12,8 @@
 //!
 //! See the respective module description for more details.
 //!
-//! The features `sync` and `async` are both default features,
-//! but usually you only need one of them. To minimize your dependency,
-//! disable default features and select the feature `sync` or `async` explicitly.
+//! The features `sync` and `async` are both optional features,
+//! usually you need exactly one of them. Select the feature `sync` or `async` explicitly.
 
 #[cfg(feature = "async")]
 #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
