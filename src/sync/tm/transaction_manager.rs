@@ -1,5 +1,4 @@
-use crate::rm::ResourceManager;
-use crate::tm::XaError;
+use crate::{sync::rm::ResourceManager, XaError};
 
 /// A transaction manager for distributed transactions.
 ///

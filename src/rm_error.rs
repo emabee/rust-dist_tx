@@ -1,16 +1,19 @@
 use super::error_code::ErrorCode;
 
-/// Represents the possible errors that can occur in a `ResourceManager`.
+/// Represents the possible errors that can occur in a `ResourceManager` (
+/// [`sync::rm::ResourceManager`](sync/rm/trait.ResourceManager.html) and
+/// [`a_sync::rm::ResourceManager`](a_sync/rm/trait.ResourceManager.html)
+/// ).
 #[derive(Debug)]
-pub struct Error {
+pub struct RmError {
     c: ErrorCode,
     s: String,
 }
-impl Error {
+impl RmError {
     /// Factory method.
     #[must_use]
-    pub fn new(c: ErrorCode, s: String) -> Error {
-        Error { c, s }
+    pub fn new(c: ErrorCode, s: String) -> RmError {
+        RmError { c, s }
     }
     /// Returns the kind of error that has occured.
     #[must_use]
