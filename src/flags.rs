@@ -2,7 +2,7 @@ bitflags::bitflags! {
     /// Flags that are used by the methods in the ResourceManager traits
     /// ([`sync::rm::ResourceManager`](sync/rm/trait.ResourceManager.html) and
     /// [`a_sync::rm::ResourceManager`](a_sync/rm/trait.ResourceManager.html)).
-    #[derive(Default)]
+    #[derive(Default, Debug, PartialEq, Eq, Copy, Clone)]
     pub struct Flags: u32 {
         // /  No resource manager feature selected.
         // const NO_FLAGS = 0;

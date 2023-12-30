@@ -95,7 +95,7 @@ pub trait TransactionManager {
 
 bitflags::bitflags! {
     /// States of a `TransactionManager`.
-    #[derive(Default)]
+    #[derive(Default, Debug, Copy, Clone, PartialEq, Eq)]
     pub struct Status: u32 {
         /// No transaction in use.
         const IDLE = 0x00_00_00_01;
