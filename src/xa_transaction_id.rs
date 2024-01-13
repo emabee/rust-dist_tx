@@ -85,26 +85,23 @@ impl XaTransactionId {
     /// If padding is true, and the combined length of the binary fields is
     /// below 128 bytes, the missing number of zero bytes are appended to
     /// make the byte pattern compatible with the XA structure in C.
-    ///
-    /// # Errors
-    ///
-    /// No errors should be possible. The message would panic if allocation fails.
     #[allow(clippy::cast_possible_wrap)]
     #[allow(clippy::cast_possible_truncation)]
-    pub fn as_bytes(&self, padding: bool) -> std::io::Result<Vec<u8>> {
-        let mut result = Vec::<u8>::with_capacity(128);
-        result.write_i32::<LittleEndian>(self.format_id)?;
-        result.write_i32::<LittleEndian>(self.global_tid.len() as i32)?;
-        result.write_i32::<LittleEndian>(self.branch_qualifier.len() as i32)?;
-        result.write_all(&self.global_tid)?;
-        result.write_all(&self.branch_qualifier)?;
+    pub fn as_bytes(&self, padding: bool) -> Vec<u8> {
+        let mut s = Vec::<u8>::with_capacity(128);
+        s.write_i32::<LittleEndian>(self.format_id).unwrap();
+        s.write_i32::<LittleEndian>(self.global_tid.len() as i32)
+            .unwrap();
+        s.write_i32::<LittleEndian>(self.branch_qualifier.len() as i32)
+            .unwrap();
+        s.write_all(&self.global_tid).unwrap();
+        s.write_all(&self.branch_qualifier).unwrap();
         if padding {
-            let missing = 128 - self.branch_qualifier.len() - self.global_tid.len();
-            for _ in 0..missing {
-                result.write_u8(0)?;
+            for _ in 0..(128 - self.branch_qualifier.len() - self.global_tid.len()) {
+                s.write_u8(0).unwrap();
             }
         }
-        Ok(result)
+        s
     }
 
     /// Reads a Vec of instances from a binary representation.

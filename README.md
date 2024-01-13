@@ -16,12 +16,12 @@ usually you need exactly one of them. Select the feature `sync` or `async` expli
 
 ```toml
 [dependencies]
-dist_tx = { version = "0.4", features = ["async"] }
+dist_tx = { version = "0.5", features = ["async"] }
 ```
 
 or
 
 ```toml
 [dependencies]
-dist_tx = { version = "0.4", features = ["sync"] }
+dist_tx = { version = "0.5", features = ["sync"] }
 ```
