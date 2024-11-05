@@ -87,18 +87,19 @@ impl XaTransactionId {
     /// make the byte pattern compatible with the XA structure in C.
     #[allow(clippy::cast_possible_wrap)]
     #[allow(clippy::cast_possible_truncation)]
+    #[must_use]
     pub fn as_bytes(&self, padding: bool) -> Vec<u8> {
         let mut s = Vec::<u8>::with_capacity(128);
-        s.write_i32::<LittleEndian>(self.format_id).unwrap();
+        s.write_i32::<LittleEndian>(self.format_id).ok();
         s.write_i32::<LittleEndian>(self.global_tid.len() as i32)
-            .unwrap();
+            .ok();
         s.write_i32::<LittleEndian>(self.branch_qualifier.len() as i32)
-            .unwrap();
-        s.write_all(&self.global_tid).unwrap();
-        s.write_all(&self.branch_qualifier).unwrap();
+            .ok();
+        s.write_all(&self.global_tid).ok();
+        s.write_all(&self.branch_qualifier).ok();
         if padding {
             for _ in 0..(128 - self.branch_qualifier.len() - self.global_tid.len()) {
-                s.write_u8(0).unwrap();
+                s.write_u8(0).ok();
             }
         }
         s

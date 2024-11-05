@@ -1,13 +1,12 @@
 [package]
 name = "dist_tx"
-version = "0.5.0"
+version = "0.5.1"
 authors = ["emabee <meinolf.block@sap.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "Rust language bindings for XA Distributed Transactions"
 keywords = ["distributed", "transactions", "asynchronous", "synchronous", "XA"]
 repository = "https://github.com/emabee/rust-dist_tx"
-documentation = "https://docs.rs/dist_tx/"
 
 ## docs.rs-specific configuration
 [package.metadata.docs.rs]

@@ -9,6 +9,12 @@
 //! Technically, the features `sync` and `async` are both optional features,
 //! usually you need exactly one of them. Select the feature `sync` or `async` explicitly.
 
+#![cfg_attr(docsrs, feature(doc_cfg))]
+#![deny(missing_docs)]
+#![deny(clippy::all)]
+#![deny(clippy::pedantic)]
+#![forbid(unsafe_code)]
+
 #[cfg(feature = "async")]
 #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
 pub mod a_sync;

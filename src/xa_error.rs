@@ -13,11 +13,11 @@ pub enum XaError {
     /// Error was caused by wrong methods calls (wrong state, or wrong parameters).
     #[error("Error was caused by wrong methods calls (wrong state, or wrong parameters)")]
     UsageDetails(String),
-    /// Some Resource Managers responded with unexpected errors,
+    /// Some resource managers responded with unexpected errors,
     /// leaving the whole system potentially in an inconsistent state.
-    #[error("Some Resource Managers responded with unexpected errors")]
+    #[error("Some resource managers responded with unexpected errors")]
     Inconsistency(String, Vec<RmError>),
-    /// Reading an XaTransactionId from a byte stream failed.
+    /// Reading an `XaTransactionId` from a byte stream failed.
     #[error("Reading an XaTransactionId from a byte stream failed")]
     ReadXid(String),
 }
