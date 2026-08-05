@@ -115,7 +115,7 @@ impl SimpleTransactionManager {
     }
 
     fn rm_start(&mut self, global_tid: u64) -> Result<(), XaError> {
-        self.rm_action(|rm, xatid| ((**rm).start(xatid)), global_tid)
+        self.rm_action(|rm, xatid| (**rm).start(xatid), global_tid)
     }
 
     // fn rm_join(&mut self, global_tid: &u64) -> Result<(),XaError> {
@@ -131,27 +131,27 @@ impl SimpleTransactionManager {
     // }
 
     fn rm_end_success(&mut self, global_tid: u64) -> Result<(), XaError> {
-        self.rm_action(|rm, xatid| ((**rm).end_success(xatid)), global_tid)
+        self.rm_action(|rm, xatid| (**rm).end_success(xatid), global_tid)
     }
 
     fn rm_end_failure(&mut self, global_tid: u64) -> Result<(), XaError> {
-        self.rm_action(|rm, xatid| ((**rm).end_failure(xatid)), global_tid)
+        self.rm_action(|rm, xatid| (**rm).end_failure(xatid), global_tid)
     }
 
     fn rm_prepare(&mut self, global_tid: u64) -> Result<(), XaError> {
-        self.rm_action(|rm, xatid| ((**rm).prepare(xatid)), global_tid)
+        self.rm_action(|rm, xatid| (**rm).prepare(xatid), global_tid)
     }
 
     fn rm_commit(&mut self, global_tid: u64) -> Result<(), XaError> {
-        self.rm_action(|rm, xatid| ((**rm).commit(xatid)), global_tid)
+        self.rm_action(|rm, xatid| (**rm).commit(xatid), global_tid)
     }
 
     fn rm_commit_one_phase(&mut self, global_tid: u64) -> Result<(), XaError> {
-        self.rm_action(|rm, xatid| ((**rm).commit_one_phase(xatid)), global_tid)
+        self.rm_action(|rm, xatid| (**rm).commit_one_phase(xatid), global_tid)
     }
 
     fn rm_rollback(&mut self, global_tid: u64) -> Result<(), XaError> {
-        self.rm_action(|rm, xatid| ((**rm).rollback(xatid)), global_tid)
+        self.rm_action(|rm, xatid| (**rm).rollback(xatid), global_tid)
     }
 
     // fn rm_forget(&mut self, global_tid: &u64) -> Result<(),XaError> {

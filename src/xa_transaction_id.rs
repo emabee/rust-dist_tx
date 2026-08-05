@@ -2,7 +2,7 @@ use crate::XaError;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std::convert::TryInto;
 use std::io::{Read, Write};
-use std::iter::repeat;
+use std::iter::repeat_n;
 
 /// The ID of a distributed transaction, in analogy to the
 /// [X/Open XA standard](http://pubs.opengroup.org/onlinepubs/009680699/toc.pdf).
@@ -128,10 +128,10 @@ impl XaTransactionId {
                 .try_into()
                 .map_err(|_| XaError::ReadXid("Negative branch qualifier length".to_owned()))?;
 
-            let mut global_tid: Vec<u8> = repeat(0_u8).take(global_tid_len).collect();
+            let mut global_tid: Vec<u8> = repeat_n(0_u8, global_tid_len).collect();
             rdr.read_exact(&mut global_tid)?;
 
-            let mut branch_qualifier: Vec<u8> = repeat(0_u8).take(branch_qualifier_len).collect();
+            let mut branch_qualifier: Vec<u8> = repeat_n(0_u8, branch_qualifier_len).collect();
             rdr.read_exact(&mut branch_qualifier)?;
 
             if padding {
